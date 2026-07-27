@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+
+# VS Code
+.vscode/
+
+# Output
+output/
+
+# Model checkpoints
+*.pth
+*.pt
+
+# Large datasets
+data/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
