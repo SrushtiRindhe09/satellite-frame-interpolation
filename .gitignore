@@ -1,26 +1,23 @@
-# Python
+# Virtual environments
+venv/
+**/venv/
+
+# Python cache
 __pycache__/
 *.pyc
 
-# Virtual Environment
-venv/
+# Outputs
+output/
+**/output/
+
+# Training logs
+train_log/
+**/train_log/
 
 # VS Code
 .vscode/
 
-# Output
-output/
-
-# Model checkpoints
-*.pth
-*.pt
-
-# Large datasets
-data/
-
-# Logs
-*.log
-
-# OS
+# macOS metadata
+__MACOSX/
 .DS_Store
 Thumbs.db
