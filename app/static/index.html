@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISRO Satellite Frame Interpolation & Quality Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0d14;
+            --bg-card: rgba(18, 24, 38, 0.75);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --accent-blue: #38bdf8;
+            --accent-indigo: #6366f1;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            max-width: 850px;
+            margin-bottom: 2.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-blue);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1050px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .card-header {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .upload-grid { grid-template-columns: 1fr; }
+        }
+
+        .dropzone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            position: relative;
+        }
+
+        .dropzone:hover {
+            border-color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .dropzone input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 0.5rem;
+            object-fit: contain;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-indigo) 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-indigo) 100%);
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(56, 189, 248, 0.45);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid { grid-template-columns: 1fr; }
+        }
+
+        .result-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .result-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+        }
+
+        .result-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: contain;
+            background: #000;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-download {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-download:hover {
+            background: var(--accent-green);
+            color: #fff;
+        }
+
+        .status-msg {
+            margin-top: 1rem;
+            padding: 0.85rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            display: none;
+            text-align: center;
+        }
+
+        .status-msg.info {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-blue);
+            display: block;
+        }
+
+        .status-msg.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+            display: block;
+        }
+
+        .status-msg.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            display: block;
+        }
+
+        /* Evaluation Section Styling */
+        .eval-section {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px dashed var(--border-color);
+            display: none;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 500px) {
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+
+        .metric-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 0.85rem;
+            padding: 1.25rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .rating-pill {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .rating-Excellent { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+        .rating-Very-Good { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; }
+        .rating-Good { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+        .rating-Poor { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
+
+        .overall-box {
+            margin-top: 1.5rem;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .overall-title {
+            font-size: 0.9rem;
+            color: var(--accent-purple);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .overall-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="badge">🚀 ISRO Hackathon Backend</div>
+        <h1>Satellite Frame Interpolation & Evaluation Portal</h1>
+        <p class="subtitle">Generate optical flow & intermediate satellite frames using RAFT and RIFE, and evaluate precision quality metrics against Ground Truth.</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">⚡ 1. Generate Intermediate Frame</div>
+            <div class="upload-grid">
+                <div class="dropzone">
+                    <input type="file" id="input-image-a" accept="image/*" onchange="previewImage('a')">
+                    <div id="content-a">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--text-muted); margin-bottom: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <div><strong>Upload Image A (Frame 1)</strong></div>
+                    </div>
+                </div>
+
+                <div class="dropzone">
+                    <input type="file" id="input-image-b" accept="image/*" onchange="previewImage('b')">
+                    <div id="content-b">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--text-muted); margin-bottom: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <div><strong>Upload Image B (Frame 2)</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="btn-process" onclick="runPipeline()">
+                ⚡ Run AI Pipeline (End-to-End Execution)
+            </button>
+
+            <div id="status-box" class="status-msg"></div>
+
+            <div class="results-section" id="results-section">
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>1. RAFT Optical Flow Visualization</h3>
+                        <img id="img-flow" src="" alt="Optical Flow">
+                        <div>
+                            <a class="btn-download" id="dl-flow" href="#" download="optical_flow.png">⬇️ Download Flow Map</a>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>2. RIFE Interpolated Intermediate Frame</h3>
+                        <img id="img-inter" src="" alt="Interpolated Frame">
+                        <div>
+                            <a class="btn-download" id="dl-inter" href="#" download="interpolated_frame.png">⬇️ Download Interpolated Frame</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluation Module Dashboard -->
+            <div class="eval-section" id="eval-section">
+                <div class="card-header">📊 2. Image Quality Evaluation Module</div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Upload the actual ground truth middle frame to evaluate the generated intermediate frame using PSNR, SSIM, MSE, and FSIM metrics.</p>
+
+                <div class="dropzone" style="max-width: 500px; margin: 0 auto 1.5rem auto;">
+                    <input type="file" id="input-gt" accept="image/*" onchange="previewGtImage()">
+                    <div id="content-gt">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--text-muted); margin-bottom: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div><strong>Upload Ground Truth Image</strong></div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Original actual middle frame</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-purple" id="btn-eval" onclick="runEvaluation()">
+                    🔍 Evaluate Quality Metrics (PSNR, SSIM, MSE, FSIM)
+                </button>
+
+                <div id="status-eval" class="status-msg"></div>
+
+                <div id="eval-results" style="display: none;">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-name">PSNR (Peak Signal-to-Noise Ratio)</div>
+                            <div class="metric-value" id="val-psnr">--</div>
+                            <div class="rating-pill" id="badge-psnr">--</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-name">SSIM (Structural Similarity)</div>
+                            <div class="metric-value" id="val-ssim">--</div>
+                            <div class="rating-pill" id="badge-ssim">--</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-name">MSE (Mean Squared Error)</div>
+                            <div class="metric-value" id="val-mse">--</div>
+                            <div class="rating-pill" id="badge-mse">--</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-name">FSIM (Feature Similarity)</div>
+                            <div class="metric-value" id="val-fsim">--</div>
+                            <div class="rating-pill" id="badge-fsim">--</div>
+                        </div>
+                    </div>
+
+                    <div class="overall-box">
+                        <div class="overall-title">Overall Quality Rating</div>
+                        <div class="overall-value" id="val-overall">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fileA = null;
+        let fileB = null;
+        let fileGt = null;
+        let currentSessionId = null;
+
+        function previewImage(type) {
+            const input = document.getElementById(`input-image-${type}`);
+            const content = document.getElementById(`content-${type}`);
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (type === 'a') fileA = file;
+                if (type === 'b') fileB = file;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    content.innerHTML = `<img src="${e.target.result}" class="preview-img"><div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-blue);">${file.name}</div>`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewGtImage() {
+            const input = document.getElementById('input-gt');
+            const content = document.getElementById('content-gt');
+            if (input.files && input.files[0]) {
+                fileGt = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    content.innerHTML = `<img src="${e.target.result}" class="preview-img"><div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-purple);">${fileGt.name}</div>`;
+                }
+                reader.readAsDataURL(fileGt);
+            }
+        }
+
+        async function runPipeline() {
+            if (!fileA || !fileB) {
+                showStatus('Please upload both Image A and Image B before running.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-process');
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner"></div> Processing AI Pipeline (RAFT Optical Flow & RIFE Interpolation)...`;
+            showStatus('Uploading images and executing full AI pipeline on backend...', 'info');
+
+            const formData = new FormData();
+            formData.append('image_a', fileA);
+            formData.append('image_b', fileB);
+
+            try {
+                const res = await fetch('/process', { method: 'POST', body: formData });
+                
+                let data;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Server returned ${res.status}: ${text.substring(0, 150)}...`);
+                }
+
+                if (res.ok) {
+                    currentSessionId = data.session_id;
+                    const flowUrl = `${data.optical_flow_image}&t=${Date.now()}`;
+                    const interUrl = `${data.interpolated_image}&t=${Date.now()}`;
+
+                    document.getElementById('img-flow').src = flowUrl;
+                    document.getElementById('dl-flow').href = flowUrl;
+
+                    document.getElementById('img-inter').src = interUrl;
+                    document.getElementById('dl-inter').href = interUrl;
+
+                    document.getElementById('results-section').style.display = 'block';
+                    document.getElementById('eval-section').style.display = 'block';
+                    showStatus('✅ AI Pipeline Executed Successfully! Both outputs generated.', 'success');
+
+                    btn.disabled = false;
+                    btn.innerHTML = `⚡ Run AI Pipeline Again`;
+                } else {
+                    throw new Error(data.detail || 'Pipeline execution failed');
+                }
+            } catch (err) {
+                showStatus(`Error: ${err.message}`, 'error');
+                btn.disabled = false;
+                btn.innerHTML = `⚡ Run AI Pipeline (End-to-End Execution)`;
+            }
+        }
+
+        async function runEvaluation() {
+            if (!fileGt) {
+                showEvalStatus('Please select a Ground Truth image to evaluate.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-eval');
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner"></div> Computing Metrics (PSNR, SSIM, MSE, FSIM)...`;
+            showEvalStatus('Evaluating generated frame quality against ground truth...', 'info');
+
+            const formData = new FormData();
+            formData.append('ground_truth_image', fileGt);
+            if (currentSessionId) {
+                formData.append('session_id', currentSessionId);
+            }
+
+            try {
+                const res = await fetch('/evaluate', { method: 'POST', body: formData });
+                
+                let data;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Server returned ${res.status}: ${text.substring(0, 150)}...`);
+                }
+
+                if (res.ok) {
+                    const m = data.metrics;
+                    const r = data.ratings;
+
+                    document.getElementById('val-psnr').innerText = `${m.psnr} dB`;
+                    setRatingBadge('badge-psnr', r.psnr);
+
+                    document.getElementById('val-ssim').innerText = m.ssim;
+                    setRatingBadge('badge-ssim', r.ssim);
+
+                    document.getElementById('val-mse').innerText = m.mse;
+                    setRatingBadge('badge-mse', r.mse);
+
+                    document.getElementById('val-fsim').innerText = m.fsim;
+                    setRatingBadge('badge-fsim', r.fsim);
+
+                    document.getElementById('val-overall').innerText = `⭐ ${data.overall_quality}`;
+
+                    document.getElementById('eval-results').style.display = 'block';
+                    showEvalStatus('✅ Quality evaluation completed!', 'success');
+
+                    btn.disabled = false;
+                    btn.innerHTML = `🔍 Evaluate Quality Metrics (PSNR, SSIM, MSE, FSIM)`;
+                } else {
+                    throw new Error(data.detail || 'Evaluation failed');
+                }
+            } catch (err) {
+                showEvalStatus(`Error: ${err.message}`, 'error');
+                btn.disabled = false;
+                btn.innerHTML = `🔍 Evaluate Quality Metrics (PSNR, SSIM, MSE, FSIM)`;
+            }
+        }
+
+        function setRatingBadge(elementId, rating) {
+            const badge = document.getElementById(elementId);
+            badge.innerText = rating;
+            const sanitized = rating.replace(/\s+/g, '-');
+            badge.className = `rating-pill rating-${sanitized}`;
+        }
+
+        function showStatus(message, type) {
+            const el = document.getElementById('status-box');
+            el.className = `status-msg ${type}`;
+            el.innerText = message;
+        }
+
+        function showEvalStatus(message, type) {
+            const el = document.getElementById('status-eval');
+            el.className = `status-msg ${type}`;
+            el.innerText = message;
+        }
+    </script>
+</body>
+</html>

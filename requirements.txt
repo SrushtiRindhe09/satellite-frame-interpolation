@@ -1,0 +1,9 @@
+torch
+torchvision
+opencv-python
+numpy
+fastapi
+uvicorn[standard]
+python-multipart
+scikit-image
+sewar
