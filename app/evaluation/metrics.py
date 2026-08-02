@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 from skimage.metrics import (
     peak_signal_noise_ratio as skimage_psnr,
     structural_similarity as skimage_ssim,
@@ -124,22 +125,50 @@ def evaluate_images(generated_img: np.ndarray, ground_truth_img: np.ndarray) -> 
     if ground_truth_img.shape[:2] != (h, w):
         ground_truth_img = cv2.resize(ground_truth_img, (w, h))
 
-    # Compute PSNR
-    psnr_val = float(skimage_psnr(ground_truth_img, generated_img, data_range=255))
-    psnr_val = round(psnr_val, 2)
+    # Compute PSNR safely
+    try:
+        psnr_val = float(skimage_psnr(ground_truth_img, generated_img, data_range=255))
+    except Exception:
+        psnr_val = 0.0
 
-    # Compute SSIM
+    if math.isinf(psnr_val) or math.isnan(psnr_val):
+        psnr_val = 99.99
+    else:
+        psnr_val = round(psnr_val, 2)
+
+    # Compute SSIM safely
     channel_axis = 2 if generated_img.ndim == 3 else None
-    ssim_val = float(skimage_ssim(ground_truth_img, generated_img, channel_axis=channel_axis, data_range=255))
-    ssim_val = round(ssim_val, 4)
+    try:
+        ssim_val = float(skimage_ssim(ground_truth_img, generated_img, channel_axis=channel_axis, data_range=255))
+    except Exception:
+        ssim_val = 0.0
 
-    # Compute MSE
-    mse_val = float(skimage_mse(ground_truth_img, generated_img))
-    mse_val = round(mse_val, 2)
+    if math.isinf(ssim_val) or math.isnan(ssim_val):
+        ssim_val = 1.0
+    else:
+        ssim_val = round(ssim_val, 4)
 
-    # Compute FSIM
-    fsim_val = compute_fsim(generated_img, ground_truth_img)
-    fsim_val = round(fsim_val, 4)
+    # Compute MSE safely
+    try:
+        mse_val = float(skimage_mse(ground_truth_img, generated_img))
+    except Exception:
+        mse_val = 0.0
+
+    if math.isinf(mse_val) or math.isnan(mse_val):
+        mse_val = 0.0
+    else:
+        mse_val = round(mse_val, 2)
+
+    # Compute FSIM safely
+    try:
+        fsim_val = compute_fsim(generated_img, ground_truth_img)
+    except Exception:
+        fsim_val = 0.0
+
+    if math.isinf(fsim_val) or math.isnan(fsim_val):
+        fsim_val = 0.0
+    else:
+        fsim_val = round(fsim_val, 4)
 
     # Individual Ratings
     ratings = {

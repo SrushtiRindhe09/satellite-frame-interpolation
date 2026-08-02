@@ -20,7 +20,7 @@ def conv_bn(in_planes, out_planes, kernel_size=3, stride=1, padding=1, dilation=
         nn.BatchNorm2d(out_planes),
         nn.LeakyReLU(0.2, True)
     )
-    
+
 class Head(nn.Module):
     def __init__(self):
         super(Head, self).__init__()
